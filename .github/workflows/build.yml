@@ -1,0 +1,28 @@
+name: Build MetaCore VST3
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build VST3 Plugin
+      run: cmake --build build --config Release --target MetaCore_VST3 --parallel 4
+
+    - name: Upload VST3 Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MetaCore-VST3-Windows
+        path: build/MetaCore_artefacts/Release/VST3/MetaCore.vst3
