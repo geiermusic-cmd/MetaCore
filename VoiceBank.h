@@ -73,7 +73,7 @@ public:
     // Renders a single stereo sample across all 128 rows
     inline void renderSample(int synthType,
                              float modDepthKnob,
-                             doublerowFreqs,
+                             const double* rowFreqs,
                              const float* smoothL,
                              const float* smoothR,
                              const float* smoothB,
