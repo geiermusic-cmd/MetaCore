@@ -3,9 +3,10 @@ name: Build MetaCore VST3
 on:
   push:
     branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-windows:
@@ -21,8 +22,24 @@ jobs:
     - name: Build VST3 Plugin
       run: cmake --build build --config Release --target MetaCore_VST3 --parallel 4
 
-    - name: Upload VST3 Artifact
+    - name: Package VST3 into Zip
+      shell: pwsh
+      run: |
+        \$vstPath = "build/MetaCore_artefacts/Release/VST3/MetaCore.vst3"
+        Compress-Archive -Path \$vstPath -DestinationPath "MetaCore-VST3-Windows.zip" -Force
+
+    - name: Upload to Actions Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: MetaCore-VST3-Windows
-        path: build/MetaCore_artefacts/Release/VST3/MetaCore.vst3
+        path: MetaCore-VST3-Windows.zip
+
+    - name: Publish to GitHub Releases
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v1.0.\${{ github.run_number }}
+        name: "MetaCore VST3 Build #\${{ github.run_number }}"
+        files: MetaCore-VST3-Windows.zip
+        generate_release_notes: false
